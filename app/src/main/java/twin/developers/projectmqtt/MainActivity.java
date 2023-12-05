@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private Mqtt mqttManager;
     EditText texto;
     Button btnEnviar;
+    TextView mensajeRecibir;
 
 
     @Override
@@ -44,6 +45,21 @@ public class MainActivity extends AppCompatActivity {
                 mqttManager.publishMessage(texto.getText().toString());
             }
         });
+
+        // Recibir Mensaje de MQTT
+        mensajeRecibir = findViewById(R.id.mensajeRecibir);
+        mqttManager = new Mqtt(getApplicationContext());
+        mqttManager.connectToMqttBroker();
+
+
+        mqttManager.setMessageReceivedListener(new Mqtt.MessageReceivedListener() {
+            @Override
+            public void onMessageReceived(String message) {
+                mensajeRecibir.setText(message);
+            }
+        });
+
+
 
     }
 

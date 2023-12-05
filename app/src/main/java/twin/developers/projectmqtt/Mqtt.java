@@ -18,7 +18,7 @@ public class Mqtt {
     private static final String MQTT_SERVER = "tcp://broker.emqx.io:1883";
     //private static final String MQTT_SERVER = "tcp://127.0.0.1:1883";
     private static final String CLIENT_ID = "AndroidSample12312312312312312";
-    private static final String TOPIC = "iot/lab/test";
+    private static final String TOPIC = "iot/lab";
     private static String MESSAGE = "";
     private static final int QOS = 2;
 
@@ -27,6 +27,8 @@ public class Mqtt {
     public Mqtt(Context context) {
         String clientId = CLIENT_ID + System.currentTimeMillis();
         String serverUri = MQTT_SERVER;
+
+
 
         mqttClient = new MqttAndroidClient(context.getApplicationContext(), serverUri, clientId, new MemoryPersistence());
         mqttClient.setCallback(new MqttCallbackExtended() {
@@ -46,11 +48,17 @@ public class Mqtt {
                 Log.d(TAG, "Connection lost: " + cause.getMessage());
             }
 
+            // Modificacion Para Recibir Un Mensaje de MQTT
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                Log.d(TAG, "Message received: " + new String(message.getPayload()));
+                String receivedMessage = new String(message.getPayload());
+                Log.d(TAG, "Message received: " + receivedMessage);
 
+                if (messageReceivedListener != null) {
+                    messageReceivedListener.onMessageReceived(receivedMessage);
+                }
             }
+
 
             @Override
             public void deliveryComplete(IMqttDeliveryToken token) {
@@ -117,5 +125,15 @@ public class Mqtt {
                 e.printStackTrace();
             }
         }
+    }
+    // Recibir Mensaje De MQTT
+    private MessageReceivedListener messageReceivedListener;
+
+    public interface MessageReceivedListener {
+        void onMessageReceived(String message);
+    }
+
+    public void setMessageReceivedListener(MessageReceivedListener listener) {
+        this.messageReceivedListener = listener;
     }
 }
